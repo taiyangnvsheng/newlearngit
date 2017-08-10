@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+
+
+        li {
+            list-style: none;
+            position: absolute;
+            width: 200px;
+            background-color: aquamarine;
+            font-size: 40px;
+            color: #eb7350;
+            text-align: center;
+            transition: all 0.5s;
+            background-size: 100% 100%;
+        }
+    </style>
+</head>
+<body>
+<ul id="myUl"></ul>
+</body>
+
+<script>
+
+    //随机颜色
+    function randColor() {
+        var r = parseInt(Math.random() * (255 - 0 + 1) + 0);
+        var g = parseInt(Math.random() * (255 - 0 + 1) + 0);
+        var b = parseInt(Math.random() * (255 - 0 + 1) + 0);
+        var str = "rgb(" + r + "," + g + "," + b + ")";
+        return str;
+
+    }
+    var theUl = document.getElementById("myUl");
+    var colHeightArr = [];  // 保留每列高度的数组
+    var liSpace = 20;   // 间隙
+    var liWidth = 200;  // 每个元素的宽度
+
+    for (var i = 0; i < 60; i++) {
+        var theLi = document.createElement("li");
+//        theLi.innerHTML = i;
+        theLi.style.height = Math.floor(Math.random() * (200 - 100 + 1) + 100) + "px";
+//        theLi.style.backgroundColor = randColor();
+        theLi.style.backgroundImage = "url" + "(img/" + i + ".jpg)";
+        theUl.appendChild(theLi);
+
+        theLi.style.lineHeight = theLi.style.height;
+
+    }
+
+    document.body.appendChild(theUl);
+
+
+    // 1. 初始化
+    function initAll() {
+        // 求浏览器宽度可以放下几列
+
+        var clWidth = document.body.clientWidth - liSpace;
+        var colNum = Math.floor(clWidth / (liWidth + liSpace));
+        theUl.style.width = colNum * (liSpace + liWidth) + liSpace;
+
+
+        for (var i = 0; i < colNum; i++) {
+            colHeightArr[i] = 0; // 因为数组里的元素默认取出来的是undefined,没法互相比较,所以初始化为0
+        }
+
+    }
+
+    initAll();
+
+    // 2. 布局每个li
+
+    function layoutLi() {
+        var liArr = document.getElementsByTagName("li");
+
+        for (var i = 0; i < liArr.length; i++) {
+            var theLi = liArr[i];
+
+            // 重点1: 去保存每列高度的数组里 先找到最矮的那列
+            var smallIndex = selMinFromArr(colHeightArr);
+            // 重点2: 利用得到的最矮的那列的序号 来算出当前li的left值
+            theLi.style.left = smallIndex * (liSpace + liWidth) + liSpace + "px";
+            // 重点3: 拿出当前列的高度直接附上去
+            theLi.style.top = colHeightArr[smallIndex] + "px";
+            // 重点4: 当前列新添加一个li之后, 应该对应更新数组里的值
+            colHeightArr[smallIndex] += liSpace + theLi.offsetHeight;
+
+            theUl.style.height = colHeightArr[smallIndex] + "px";
+
+        }
+
+
+    }
+
+    layoutLi();
+
+
+    // 找最小值的
+    function selMinFromArr(arr) {
+        var minNum = arr[0];
+        var minIndex = 0;
+        for (var i = 0; i < arr.length; i++) {
+            if (arr[i] < minNum) {
+                minNum = arr[i];
+                minIndex = i; // 保留最小值的下角标
+            }
+        }
+        return minIndex;  // 返回最小值的下角标
+    }
+
+    window.onresize = function () {
+        initAll();
+        layoutLi();
+    }
+</script>
+</html>
